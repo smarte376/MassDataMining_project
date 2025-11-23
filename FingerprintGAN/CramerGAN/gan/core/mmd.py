@@ -9,6 +9,37 @@ import tensorflow as tf
 import numpy as np
 from .ops import dot, sq_sum
 
+# TensorFlow 2.x compatibility layer
+if not hasattr(tf, 'get_default_session'):
+    tf.get_default_session = tf.compat.v1.get_default_session
+    tf.variable_scope = tf.compat.v1.variable_scope
+    tf.get_variable_scope = tf.compat.v1.get_variable_scope
+    tf.get_variable = tf.compat.v1.get_variable
+    tf.placeholder = tf.compat.v1.placeholder
+    tf.AUTO_REUSE = tf.compat.v1.AUTO_REUSE
+    tf.control_dependencies = tf.compat.v1.control_dependencies
+    tf.global_variables = tf.compat.v1.global_variables
+    tf.trainable_variables = tf.compat.v1.trainable_variables
+    tf.local_variables = tf.compat.v1.local_variables
+    tf.assign = tf.compat.v1.assign
+    tf.is_variable_initialized = tf.compat.v1.is_variable_initialized
+    tf.ConfigProto = tf.compat.v1.ConfigProto
+    tf.Session = tf.compat.v1.Session
+    tf.set_random_seed = tf.compat.v1.set_random_seed
+    tf.rsqrt = tf.math.rsqrt
+    tf.sqrt = tf.math.sqrt
+    tf.square = tf.math.square
+    tf.reduce_mean = tf.math.reduce_mean
+    tf.reduce_sum = tf.math.reduce_sum
+    tf.reduce_max = tf.math.reduce_max
+    tf.reduce_min = tf.math.reduce_min
+    tf.random_uniform = tf.random.uniform
+    tf.random_normal = tf.random.normal
+    if not hasattr(tf.train, 'string_input_producer'):
+        tf.train.string_input_producer = tf.compat.v1.train.string_input_producer
+        tf.train.shuffle_batch = tf.compat.v1.train.shuffle_batch
+        tf.train.Saver = tf.compat.v1.train.Saver
+
 mysqrt = lambda x: tf.sqrt(tf.maximum(x + _eps, 0.))
 
 def _distance_kernel(X, Y, K_XY_only=False):

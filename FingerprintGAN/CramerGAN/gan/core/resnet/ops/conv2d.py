@@ -107,7 +107,7 @@ def Conv2D(name, input_dim, output_dim, filter_size, inputs, he_init=True, mask_
 
         result = tf.nn.conv2d(
             input=inputs, 
-            filter=filters, 
+            filters=filters,  # TF 2.x uses 'filters' not 'filter'
             strides=[1, 1, stride, stride],
             padding='SAME',
             data_format='NCHW'
