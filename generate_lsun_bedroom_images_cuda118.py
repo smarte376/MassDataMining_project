@@ -1,5 +1,5 @@
 """
-Generate CelebA images using all 4 GAN models with CUDA 11.8 support.
+Generate LSUN Bedroom images using all 4 GAN models with CUDA 11.8 support.
 This script generates approximately 5000 images from each model:
 - ProGAN
 - SNGAN
@@ -26,22 +26,22 @@ from PIL import Image
 NUM_IMAGES = 5000
 BATCH_SIZE_PROGAN = 16
 BATCH_SIZE_SNGAN = 32
-BATCH_SIZE_CRAMER = 64  # Checkpoint was trained with batch size 64
-BATCH_SIZE_MMD = 128     # Checkpoint was trained with batch size 128
+BATCH_SIZE_CRAMER = 32  # LSUN checkpoint trained with smaller batch size (64x64 images)
+BATCH_SIZE_MMD = 32     # LSUN checkpoint trained with smaller batch size (64x64 images)
 SEED = 0
 
 # Output directories
-OUTPUT_DIR_PROGAN = './data/generated/celeba/progan'
-OUTPUT_DIR_SNGAN = './data/generated/celeba/sngan'
-OUTPUT_DIR_CRAMER = './data/generated/celeba/cramergan'
-OUTPUT_DIR_MMD = './data/generated/celeba/mmdgan'
+OUTPUT_DIR_PROGAN = './data/generated/lsun_bedroom/progan'
+OUTPUT_DIR_SNGAN = './data/generated/lsun_bedroom/sngan'
+OUTPUT_DIR_CRAMER = './data/generated/lsun_bedroom/cramergan'
+OUTPUT_DIR_MMD = './data/generated/lsun_bedroom/mmdgan'
 
 # Model paths
-PROGAN_MODEL = './FingerprintGAN/ProGAN/models/celeba_align_png_cropped.pkl'
-SNGAN_MODEL = './FingerprintGAN/SNGAN/models/celeba_align_png_cropped.npz'
-SNGAN_CONFIG = './FingerprintGAN/SNGAN/configs/sn_projection_celeba.yml'
-CRAMER_MODEL = './FingerprintGAN/CramerGAN/models/celebA64x64_g_resnet5_dc_d5-5-1_32_128_lr0.00010000_bn'
-MMD_MODEL = './FingerprintGAN/MMDGAN/models/celebA64x64_g_resnet5_dc_mix_rq_1dotd5-5-1_32_128_lr0.00010000_bn'
+PROGAN_MODEL = './FingerprintGAN/ProGAN/models/lsun_bedroom_200k_png.pkl'
+SNGAN_MODEL = './FingerprintGAN/SNGAN/models/lsun_bedroom_200k_png.npz'
+SNGAN_CONFIG = './FingerprintGAN/SNGAN/configs/sn_projection_lsun_bedroom_200k.yml'
+CRAMER_MODEL = './FingerprintGAN/CramerGAN/models/lsun_bedroom_200k64x64_g_resnet5_dc_d5-5-1_32_128_lr0.00010000_bn'
+MMD_MODEL = './FingerprintGAN/MMDGAN/models/lsun_bedroom_200k64x64_g_resnet5_dc_mix_rq_1dotd5-5-1_32_128_lr0.00010000_bn'
 
 # ============================================================================
 # ProGAN Generation
@@ -259,16 +259,15 @@ def generate_cramergan_images():
     
     # Define required flags
     flags.DEFINE_string("checkpoint_dir", CRAMER_MODEL, "Checkpoint directory")
-    flags.DEFINE_string("dataset", "celebA", "Dataset name")
+    flags.DEFINE_string("dataset", "lsun", "Dataset name")
     flags.DEFINE_integer("batch_size", BATCH_SIZE_CRAMER, "Batch size")
-    flags.DEFINE_integer(
-"output_size", 64, "Output size")
+    flags.DEFINE_integer("output_size", 64, "Output size")  # Config value (actual model uses 128)
     flags.DEFINE_integer("c_dim", 3, "Image channels")
     flags.DEFINE_string("architecture", "g_resnet5", "Architecture")
     flags.DEFINE_string("model", "cramer", "Model type")
-    flags.DEFINE_integer("gf_dim", 64, "Generator filters")  # Checkpoint: g_h0_lin expects 64*16*4*4=16384
-    flags.DEFINE_integer("df_dim", 64, "Discriminator filters")  # Model trained with df_dim=64
-    flags.DEFINE_integer("dof_dim", 256, "Discriminator output features")  # Checkpoint: d_h6_lin (16384, 256)
+    flags.DEFINE_integer("gf_dim", 64, "Generator filters")  # Same as CelebA
+    flags.DEFINE_integer("df_dim", 64, "Discriminator filters")  # Same as CelebA  
+    flags.DEFINE_integer("dof_dim", 256, "Discriminator output features")  # Same as CelebA
     flags.DEFINE_float("gradient_penalty", 1.0, "Gradient penalty")
     flags.DEFINE_boolean("batch_norm", True, "Use batch norm")
     flags.DEFINE_boolean("is_train", False, "Training mode")
@@ -318,7 +317,7 @@ def generate_cramergan_images():
             sess=sess,
             config=FLAGS,
             batch_size=BATCH_SIZE_CRAMER,
-            output_size=128,  # Checkpoint trained with 128x128 output (gf_dim*16*s32*s32=64*16*4*4=16384)
+            output_size=128,  # LSUN checkpoint outputs 128x128 natively
             c_dim=3,
             data_dir=FLAGS.data_dir
         )
@@ -361,8 +360,6 @@ def generate_cramergan_images():
         num_batches = (NUM_IMAGES + BATCH_SIZE_CRAMER - 1) // BATCH_SIZE_CRAMER
         generated_count = 0
         
-        from scipy.ndimage import zoom
-        
         for batch_idx in range(num_batches):
             # Determine batch size for this iteration
             remaining = NUM_IMAGES - generated_count
@@ -378,7 +375,7 @@ def generate_cramergan_images():
             for i in range(current_batch_size):
                 img = images[i]
                 
-                # Clip to [0, 1] and convert to uint8 (output is already 128x128)
+                # Clip to [0, 1] and convert to uint8
                 img = np.clip(img, 0, 1)
                 img_uint8 = (img * 255).astype(np.uint8)
                 
@@ -395,11 +392,8 @@ def generate_cramergan_images():
     
     print(f"\n[✓] CramerGAN: Successfully generated {generated_count} images to {OUTPUT_DIR_CRAMER}")
     
-    # Clean up session
-    sess.close()
-    
-    # Clean up
-    tf.reset_default_graph()
+    # Clean up - session will auto-close with context manager
+    # Graph reset happens outside this function
 
 # ============================================================================
 # MMDGAN Generation
@@ -444,16 +438,16 @@ def generate_mmdgan_images():
     
     # Define required flags
     flags.DEFINE_string("checkpoint_dir", MMD_MODEL, "Checkpoint directory")
-    flags.DEFINE_string("dataset", "celebA", "Dataset name")
+    flags.DEFINE_string("dataset", "lsun", "Dataset name")
     flags.DEFINE_integer("batch_size", BATCH_SIZE_MMD, "Batch size")
     flags.DEFINE_integer("output_size", 64, "Output size")
     flags.DEFINE_integer("c_dim", 3, "Image channels")
     flags.DEFINE_string("architecture", "g_resnet5_mix_rq", "Architecture")
     flags.DEFINE_string("model", "mmd", "Model type")
     flags.DEFINE_string("kernel", "mix_rq_1dot", "Kernel type")
-    flags.DEFINE_integer("gf_dim", 64, "Generator filters")  # Checkpoint: g_h0_lin expects 64*16*4*4=16384
-    flags.DEFINE_integer("df_dim", 64, "Discriminator filters")  # Model trained with df_dim=64
-    flags.DEFINE_integer("dof_dim", 16, "Discriminator output features")  # Checkpoint: d_h6_lin (16384, 16)
+    flags.DEFINE_integer("gf_dim", 64, "Generator filters")  # Same as CelebA
+    flags.DEFINE_integer("df_dim", 64, "Discriminator filters")  # Same as CelebA
+    flags.DEFINE_integer("dof_dim", 16, "Discriminator output features")  # Same as CelebA
     flags.DEFINE_float("gradient_penalty", 1.0, "Gradient penalty")
     flags.DEFINE_boolean("batch_norm", True, "Use batch norm")
     flags.DEFINE_boolean("is_train", False, "Training mode")
@@ -505,7 +499,7 @@ def generate_mmdgan_images():
             sess=sess,
             config=FLAGS,
             batch_size=BATCH_SIZE_MMD,
-            output_size=128,  # Checkpoint trained with 128x128 output (gf_dim*16*s32*s32=64*16*4*4=16384)
+            output_size=128,  # LSUN checkpoint outputs 128x128 natively
             c_dim=3,
             data_dir=FLAGS.data_dir
         )
@@ -547,8 +541,6 @@ def generate_mmdgan_images():
         num_batches = (NUM_IMAGES + BATCH_SIZE_MMD - 1) // BATCH_SIZE_MMD
         generated_count = 0
         
-        from scipy.ndimage import zoom
-        
         for batch_idx in range(num_batches):
             # Determine batch size for this iteration
             remaining = NUM_IMAGES - generated_count
@@ -564,7 +556,7 @@ def generate_mmdgan_images():
             for i in range(current_batch_size):
                 img = images[i]
                 
-                # Clip to [0, 1] and convert to uint8 (output is already 128x128)
+                # Clip to [0, 1] and convert to uint8
                 img = np.clip(img, 0, 1)
                 img_uint8 = (img * 255).astype(np.uint8)
                 
@@ -580,9 +572,6 @@ def generate_mmdgan_images():
                 sys.stdout.flush()
     
     print(f"\n[✓] MMDGAN: Successfully generated {generated_count} images to {OUTPUT_DIR_MMD}")
-    
-    # Clean up
-    tf.reset_default_graph()
 
 # ============================================================================
 # Main Execution
@@ -591,7 +580,7 @@ def generate_mmdgan_images():
 def main():
     """Main function to generate all images."""
     print("="*80)
-    print("CELEBA IMAGE GENERATION - CUDA 11.8")
+    print("LSUN BEDROOM IMAGE GENERATION - CUDA 11.8")
     print("="*80)
     print("Generating images from 4 GAN models:")
     print("  - ProGAN (TensorFlow)")
@@ -623,42 +612,42 @@ def main():
     #     traceback.print_exc()
     #     results['SNGAN'] = False
     
-    # try:
-    #     generate_cramergan_images()
-    #     results['CramerGAN'] = True
-    # except Exception as e:
-    #     print(f"\n[✗] CramerGAN failed: {e}")
-    #     import traceback
-    #     traceback.print_exc()
-    #     results['CramerGAN'] = False
+    try:
+        generate_cramergan_images()
+        results['CramerGAN'] = True
+    except Exception as e:
+        print(f"\n[✗] CramerGAN failed: {e}")
+        import traceback
+        traceback.print_exc()
+        results['CramerGAN'] = False
     
     # IMPORTANT: CramerGAN session is now closed, safe to reset graph
-    # Clean up TensorFlow graph before MMDGAN (only needed if CramerGAN ran)
-    # print("\nCleaning up TensorFlow graph before MMDGAN...")
-    # import tensorflow as tf
-    # import time
-    # import gc
-    # 
-    # # Force garbage collection
-    # gc.collect()
-    # 
-    # # Reset default graph (now safe since session is closed)
-    # if hasattr(tf, 'compat'):
-    #     tf.compat.v1.reset_default_graph()
-    # else:
-    #     tf.reset_default_graph()
-    #     
-    # # Clear module cache to prevent graph conflicts  
-    # modules_to_clear = [k for k in sys.modules.keys() if 'core' in k or 'architecture' in k]
-    # for mod in modules_to_clear:
-    #     try:
-    #         del sys.modules[mod]
-    #     except:
-    #         pass
-    #     
-    # # Brief pause to ensure cleanup completes
-    # time.sleep(1)
-    # print("Graph cleanup complete.")
+    # Clean up TensorFlow graph before next model
+    print("\nCleaning up TensorFlow graph before MMDGAN...")
+    import tensorflow as tf
+    import time
+    import gc
+    
+    # Force garbage collection
+    gc.collect()
+    
+    # Reset default graph (now safe since session is closed)
+    if hasattr(tf, 'compat'):
+        tf.compat.v1.reset_default_graph()
+    else:
+        tf.reset_default_graph()
+        
+    # Clear module cache to prevent graph conflicts  
+    modules_to_clear = [k for k in sys.modules.keys() if 'core' in k or 'architecture' in k]
+    for mod in modules_to_clear:
+        try:
+            del sys.modules[mod]
+        except:
+            pass
+        
+    # Brief pause to ensure cleanup completes
+    time.sleep(1)
+    print("Graph cleanup complete.")
     
     try:
         generate_mmdgan_images()
@@ -671,7 +660,7 @@ def main():
     
     # Print summary
     print("\n" + "="*80)
-    print("GENERATION SUMMARY - CelebA")
+    print("GENERATION SUMMARY - LSUN Bedroom")
     print("="*80)
     
     for model_name, success in results.items():
@@ -684,7 +673,7 @@ def main():
     print(f"\nTotal: {successful}/{total} models completed successfully")
     
     if successful == total:
-        print("\n[✓] All CelebA images generated successfully!")
+        print("\n[✓] All LSUN Bedroom images generated successfully!")
         print("Expected output:")
         print(f"  - {OUTPUT_DIR_PROGAN}/     ({NUM_IMAGES} images)")
         print(f"  - {OUTPUT_DIR_SNGAN}/      ({NUM_IMAGES} images)")

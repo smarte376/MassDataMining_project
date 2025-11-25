@@ -147,8 +147,10 @@ def linear(input_, output_size, name="Linear", stddev=0.01, bias_start=0.0, with
     shape = input_.get_shape().as_list()
     
     with tf.variable_scope(name):
-        scope_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 
-                                       tf.get_variable_scope().name)
+        # TensorFlow 2.x compatibility: use compat.v1
+        tf_compat = tf.compat.v1 if hasattr(tf, 'compat') else tf
+        scope_vars = tf_compat.get_collection(tf_compat.GraphKeys.TRAINABLE_VARIABLES, 
+                                       tf_compat.get_variable_scope().name)
         has_summary = any([('Matrix' in v.op.name) for v in scope_vars])
         matrix = tf.get_variable("Matrix", [shape[1], output_size], tf.float32,
                                  tf.random_normal_initializer(stddev=stddev))
