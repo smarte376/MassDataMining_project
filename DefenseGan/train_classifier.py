@@ -7,7 +7,7 @@ import torch.optim as optim
 from tqdm import tqdm
 
 from data.get_data import *
-from DefenseGan.utils import *
+from utils import *
 from models.mnist_model import *
 from models.cifar10_model import *
 

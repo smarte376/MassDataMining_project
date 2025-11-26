@@ -24,8 +24,8 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f"Using device: {device}")
 
 # Model paths (optional - will train simple models if not found)
-CLF_MODEL_PATH = './DefenseGAN/saved_model/mnist_B.pth'
-GAN_MODEL_PATH = './DefenseGAN/saved_model/collaborative_gan_mnist_B/g_ba.pth'
+CLF_MODEL_PATH = './saved_model/mnist_B.pth'
+GAN_MODEL_PATH = './saved_model/collaborative_gan_mnist_B/g_ba.pth'
 
 # ============================================================================
 # Model Definitions
@@ -121,7 +121,7 @@ def load_mnist_data(train=False):
     """Load MNIST dataset."""
     transform = torchvision.transforms.ToTensor()
     dataset = torchvision.datasets.MNIST(
-        root='./DefenseGAN/data',
+        root='./data',
         train=train,
         download=True,
         transform=transform
