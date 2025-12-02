@@ -26,8 +26,7 @@ from __future__ import print_function
 
 
 import tensorflow as tf
-
-slim = tf.contrib.slim
+import tf_slim as slim
 
 
 def block35(net, scale=1.0, activation_fn=tf.nn.relu, scope=None, reuse=None):
@@ -370,7 +369,7 @@ def inception_resnet_v2_arg_scope(
     batch_norm_decay=0.9997,
     batch_norm_epsilon=0.001,
     activation_fn=tf.nn.relu,
-    batch_norm_updates_collections=tf.GraphKeys.UPDATE_OPS):
+    batch_norm_updates_collections=tf.compat.v1.GraphKeys.UPDATE_OPS):
   """Returns the scope with the default parameters for inception_resnet_v2.
 
   Args:
