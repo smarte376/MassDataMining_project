@@ -14,6 +14,7 @@ import config
 import tfutil
 import dataset
 import misc
+import util_scripts # Andrew has to put this for some reason?
 
 import argparse
 

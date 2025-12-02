@@ -22,6 +22,8 @@ def classify(model_path, testing_data_path):
     print('Loading network...')
     C_im = misc.load_network_pkl(model_path)
 
+    labels = []
+
     if testing_data_path.endswith('.png') or testing_data_path.endswith('.jpg'):
         im = np.array(PIL.Image.open(testing_data_path)).astype(np.float32) / 255.0
         if len(im.shape) < 3:
