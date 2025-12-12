@@ -33,3 +33,8 @@ data/
 Datasets/
 *.pyc
 results/
+
+#################### James .gitignore directories
+data_prior/
+zip/
+#################### James .gitignore directories
