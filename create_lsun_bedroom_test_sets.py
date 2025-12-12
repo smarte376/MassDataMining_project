@@ -164,7 +164,11 @@ def create_test_set_with_attack(test_name, config, real_dir, generated_base_dir,
         # Save images directly to flat directory
         for i, img_path in enumerate(selected_images):
             # Filename with category prefix (all in same directory)
-            new_filename = f"{category}_{i:05d}{img_path.suffix}"
+            # For JPEG attack, force .jpg extension; otherwise keep original
+            if attack_type == 'jpeg':
+                new_filename = f"{category}_{i:05d}.jpg"
+            else:
+                new_filename = f"{category}_{i:05d}.png"
             dest_path = os.path.join(output_dir, new_filename)
             
             if attack_type:
@@ -175,8 +179,9 @@ def create_test_set_with_attack(test_name, config, real_dir, generated_base_dir,
                 attacked_img = attacked_batch[0]
                 save_numpy_as_image(attacked_img, dest_path)
             else:
-                # Just copy
-                shutil.copy2(img_path, dest_path)
+                # Load and save (ensures proper format conversion)
+                img = load_image_as_numpy(img_path)
+                save_numpy_as_image(img, dest_path)
         
         if attack_type:
             print(f"  ✓ Applied {attack_type} attack to {len(selected_images)} images -> {output_dir}")
