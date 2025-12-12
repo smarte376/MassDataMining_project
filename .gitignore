@@ -26,3 +26,5 @@ data/
 Datasets/
 *.pyc
 results/
+data_prior/
+zip/
