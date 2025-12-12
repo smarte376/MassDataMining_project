@@ -3,3 +3,4 @@ data/
 FingerprintGAN/classifier/models/
 saved_model/
 zip_files/
+results/*
