@@ -147,17 +147,21 @@ clf_model_mapper = {
     "fmnist_C": mnistmodel_C,
     "cifar_A": cifar10_a,
     "cifar_B": cifar10_b,
+    "cifar10_A": cifar10_a,
+    "cifar10_B": cifar10_b,
 }
 
 data_mapper = {
     "mnist": normalMnist,
     "fmnist": normalFMnist,
+    "cifar": normalCifar10,
     "cifar10": normalCifar10,
 }
 
 data_atk_mapper = {
     "mnist": attackMnist,
     "fmnist": attackFMnist,
+    "cifar": attackCifar10,
     "cifar10": attackCifar10,
 }
 
