@@ -18,6 +18,7 @@ import PIL.Image
 import skimage
 import skimage.transform
 import pickle
+import pandas as pd
 
 
 # based on https://scikit-learn.org/stable/auto_examples/applications/plot_face_recognition.html
@@ -84,14 +85,20 @@ def main():
     draw_cm(clf, X_test_pca, y_test, y_pred, labels)
     draw_eigenfaces(eigenfaces, h, w)
     
-def draw_cm(clf, X_pca, y_test, y_pred, labels):
+def draw_cm(clf, X_pca, y_test, y_pred, labels, save_dir="img"):
     X_test_pca = X_pca
     print(classification_report(y_test, y_pred, target_names=labels))
+    if __name__ != "__main__":
+        c_df = pd.DataFrame(np.array([y_test, y_pred]).T)
+        c_df.to_csv(save_dir + "/eigenface_preds.csv")
+        with open(save_dir + "/eigenface_report", "w") as f:
+            f.write(classification_report(y_test, y_pred, target_names=labels))
+
     ConfusionMatrixDisplay.from_estimator(
         clf, X_test_pca, y_test, display_labels=labels, xticks_rotation="vertical"
     )
     plt.tight_layout()
-    plt.savefig("img/eigenface_cm.png", dpi=300)
+    plt.savefig(save_dir + "/eigenface_cm.png", dpi=300)
     plt.show()
 
 def draw_eigenfaces(eigenfaces, h, w):
@@ -143,13 +150,14 @@ def loadData(testing_data_path):
 
 def load_pkl(filename):
     with open(filename, 'rb') as file:
-        return legacy.LegacyUnpickler(file, encoding='latin1').load()
+        # return legacy.LegacyUnpickler(file, encoding='latin1').load()
+        return pickle.Unpickler(file, encoding='latin1').load()
 
 def save_pkl(obj, filename):
     with open(filename, 'wb') as file:
         pickle.dump(obj, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-def run_model(dataPath, modelPath):
+def run_model(dataPath, modelPath, savePath):
     X, y = loadData(dataPath)
     clf = load_pkl(modelPath + "/ef_classifier.pkl")
     pca = load_pkl(modelPath + "/ef_pca.pkl")
@@ -157,7 +165,7 @@ def run_model(dataPath, modelPath):
     
     X_pca = pca.transform(X)
     y_pred = clf.predict(X_pca)
-    draw_cm(clf, X_pca, y, y_pred, labels)
+    draw_cm(clf, X_pca, y, y_pred, labels, savePath)
 
 if __name__ == "__main__":
     dataPath = "../data/test_sets/celeba/eigenface_train/clean"

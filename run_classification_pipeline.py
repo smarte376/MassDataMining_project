@@ -16,6 +16,8 @@ from datetime import datetime
 # Import DefenseGAN wrapper
 from defense_gan_wrapper import DefenseGANReconstructor
 
+from eigenface.eigenface import run_model
+
 
 def run_classification_pipeline(
     test_set_dir,
@@ -24,7 +26,9 @@ def run_classification_pipeline(
     use_defense_gan=False,
     defense_gan_model_dir=None,
     defense_dataset_type='cifar10',
-    output_base_dir='results'
+    output_base_dir='results',
+    use_eigenface=False,
+    eigenface_model_dir=None
 ):
     """
     Args:
@@ -234,6 +238,23 @@ def run_classification_pipeline(
         f.write("\n")
         f.write("=" * 80 + "\n")
     
+    if use_eigenface:
+        if not eigenface_model_dir:
+            raise ValueError("eigenface_model_dir must be provided when use_eigenface=True")
+
+        print()
+        print("=" * 80)
+        print("Eigenface Classifier")
+        print("=" * 80)
+        run_model(test_set_dir, eigenface_model_dir, str(results_dir))
+        print()
+    else:
+        print()
+        print("=" * 80)
+        print("Skipping Eigenface Classifier (use_eigenface=False)")
+        print("=" * 80)
+
+    
     print()
     print("=" * 80)
     print("Pipeline Finished")
@@ -263,6 +284,15 @@ Examples:
       --dataset celeba \\
       --use_defense_gan \\
       --defense_gan_model_dir DefenseGan/saved_model/cifar10
+
+  # Run classification WITH DefenseGAN reconstruction AND Eigenface classifier
+  python run_classification_pipeline.py \\
+      --test_set_dir data/test_sets/celeba/balanced_small/noise \\
+      --dataset celeba \\
+      --use_defense_gan \\
+      --defense_gan_model_dir DefenseGan/saved_model/cifar10 \\
+      --use_eigenface \\
+      --eigenface_model_dir eigenface/models
 
   # Run on LSUN bedroom dataset
   python run_classification_pipeline.py \\
@@ -315,6 +345,19 @@ Examples:
         default='results',
         help='Base directory for output files (default: results/)'
     )
+
+    parser.add_argument(
+        '--use_eigenface',
+        action='store_true',
+        help='Use Eigenface classifier along with our native classifier; only works on CelebA'
+    )
+
+    parser.add_argument(
+        '--eigenface_model_dir',
+        type=str,
+        default='eigenface/models',
+        help='Path to Eigenface classifier directory; only works on CelebA'
+    )
     
     args = parser.parse_args()
     
@@ -326,6 +369,10 @@ Examples:
     if args.use_defense_gan and not os.path.isdir(args.defense_gan_model_dir):
         print(f"ERROR: DefenseGAN model directory not found: {args.defense_gan_model_dir}")
         sys.exit(1)
+
+    if args.use_eigenface and not os.path.isdir(args.eigenface_model_dir):
+        print(f"ERROR: Eigenface model directory not found: {args.eigenface_model_dir}")
+        sys.exit(1)
     
     # Run pipeline
     run_classification_pipeline(
@@ -335,7 +382,9 @@ Examples:
         use_defense_gan=args.use_defense_gan,
         defense_gan_model_dir=args.defense_gan_model_dir,
         defense_dataset_type=args.defense_dataset_type,
-        output_base_dir=args.output_base_dir
+        output_base_dir=args.output_base_dir,
+        use_eigenface=args.use_eigenface,
+        eigenface_model_dir=args.eigenface_model_dir
     )
 
 

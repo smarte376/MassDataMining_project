@@ -26,7 +26,8 @@ from PIL import Image
 from adversarial_attacks import AdversarialAttackGenerator
 
 # Configuration
-REAL_IMAGE_DIR = './Datasets/Datasets/celeba_align_png_cropped'  # Real CelebA images
+REAL_IMAGE_DIR = './Datasets/celeba_align_png_cropped'  # Real CelebA images
+# REAL_IMAGE_DIR = './Datasets/Datasets/celeba_align_png_cropped'  # Real CelebA images
 GENERATED_BASE_DIR = './data/generated/celeba'
 OUTPUT_BASE_DIR = './data/test_sets/celeba'
 
@@ -34,11 +35,12 @@ OUTPUT_BASE_DIR = './data/test_sets/celeba'
 GAN_TYPES = ['progan', 'sngan', 'cramergan', 'mmdgan']
 
 # Attack types to test
-ATTACK_TYPES = ['noise', 'blur', 'crop', 'jpeg', 'relight', 'random_combo']
+ATTACK_TYPES = [] # for generating eigenface data
+# ATTACK_TYPES = ['noise', 'blur', 'crop', 'jpeg', 'relight', 'random_combo']
 
 # Test set configurations
-TEST_CONFIGS = {
-    'balanced_small': {
+TEST_CONFIGS = { # for generating eigenface
+    'eigenface_train': {
         'real': 500,
         'progan': 500,
         'sngan': 500,
@@ -46,6 +48,15 @@ TEST_CONFIGS = {
         'mmdgan': 500
     }
 }
+# TEST_CONFIGS = {
+#     'balanced_small': {
+#         'real': 500,
+#         'progan': 500,
+#         'sngan': 500,
+#         'cramergan': 500,
+#         'mmdgan': 500
+#     }
+# }
 
 
 def get_image_files(directory):
