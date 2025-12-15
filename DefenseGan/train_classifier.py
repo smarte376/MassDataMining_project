@@ -7,7 +7,7 @@ import torch.optim as optim
 from tqdm import tqdm
 
 from data.get_data import *
-from DefenseGan.utils import *
+from utils import *
 from models.mnist_model import *
 from models.cifar10_model import *
 
@@ -72,11 +72,14 @@ model_mapper = {
     "fmnist_C": mnistmodel_C,
     "cifar_A": cifar10_a,
     "cifar_B": cifar10_b,
+    "cifar10_A": cifar10_a,
+    "cifar10_B": cifar10_b,
 }
 
 data_mapper = {
     "mnist": normalMnist,
     "fmnist": normalFMnist,
+    "cifar": normalCifar10,
     "cifar10": normalCifar10,
 }
 

@@ -23,17 +23,17 @@ from __future__ import print_function
 
 import copy
 import tensorflow as tf
+import tf_slim as slim
 
 from nets.nasnet import nasnet
 from nets.nasnet import nasnet_utils
 
-arg_scope = tf.contrib.framework.arg_scope
-slim = tf.contrib.slim
+arg_scope = slim.arg_scope
 
 
 def large_imagenet_config():
   """Large ImageNet configuration based on PNASNet-5."""
-  return tf.contrib.training.HParams(
+  return tf.compat.v1.train.experimental.HParams(
       stem_multiplier=3.0,
       dense_dropout_keep_prob=0.5,
       num_cells=12,
@@ -50,7 +50,7 @@ def large_imagenet_config():
 
 def mobile_imagenet_config():
   """Mobile ImageNet configuration based on PNASNet-5."""
-  return tf.contrib.training.HParams(
+  return tf.compat.v1.train.experimental.HParams(
       stem_multiplier=1.0,
       dense_dropout_keep_prob=0.5,
       num_cells=9,

@@ -33,8 +33,8 @@ def get_weight(shape, gain=np.sqrt(2), use_wscale=False, fan_in=None):
 
 def dense(x, fmaps, gain=np.sqrt(2), use_wscale=False):
     if len(x.shape) > 2:
-        x = tf.reshape(x, [-1, np.prod([d.value for d in x.shape[1:]])])
-    w = get_weight([x.shape[1].value, fmaps], gain=gain, use_wscale=use_wscale)
+        x = tf.reshape(x, [-1, np.prod([d if isinstance(d, int) else d.value for d in x.shape[1:]])])
+    w = get_weight([x.shape[1] if isinstance(x.shape[1], int) else x.shape[1].value, fmaps], gain=gain, use_wscale=use_wscale)
     w = tf.cast(w, x.dtype)
     return tf.matmul(x, w)
 
@@ -89,7 +89,8 @@ def upscale2d(x, factor=2):
 
 def upscale2d_conv2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
     assert kernel >= 1 and kernel % 2 == 1
-    w = get_weight([kernel, kernel, fmaps, x.shape[1].value], gain=gain, use_wscale=use_wscale, fan_in=(kernel**2)*x.shape[1].value)
+    x_shape_1 = x.shape[1] if isinstance(x.shape[1], int) else x.shape[1].value
+    w = get_weight([kernel, kernel, fmaps, x_shape_1], gain=gain, use_wscale=use_wscale, fan_in=(kernel**2)*x_shape_1)
     w = tf.pad(w, [[1,1], [1,1], [0,0], [0,0]], mode='CONSTANT')
     w = tf.add_n([w[1:, 1:], w[:-1, 1:], w[1:, :-1], w[:-1, :-1]])
     w = tf.cast(w, x.dtype)
@@ -99,7 +100,7 @@ def upscale2d_conv2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
 #----------------------------------------------------------------------------
 # upscale2d for RGB image by upsampling + Gaussian smoothing
 
-gaussian_filter_up = tf.constant(list(np.float32([1,4,6,4,1,4,16,24,16,4,6,24,36,24,6,4,16,24,16,4,1,4,6,4,1])/256.0*4.0), dtype=tf.float32, shape=[5,5,1,1], name='GaussianFilterUp', verify_shape=False)
+gaussian_filter_up = tf.constant(list(np.float32([1,4,6,4,1,4,16,24,16,4,6,24,36,24,6,4,16,24,16,4,1,4,6,4,1])/256.0*4.0), dtype=tf.float32, shape=[5,5,1,1], name='GaussianFilterUp')
 
 def upscale2d_rgb_Gaussian(x, factor=2):
     assert isinstance(factor, int) and factor >= 1
@@ -137,7 +138,7 @@ def downscale2d(x, factor=2):
 
 def conv2d_downscale2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
     assert kernel >= 1 and kernel % 2 == 1
-    w = get_weight([kernel, kernel, x.shape[1].value, fmaps], gain=gain, use_wscale=use_wscale)
+    w = get_weight([kernel, kernel, x.shape[1] if isinstance(x.shape[1], int) else x.shape[1].value, fmaps], gain=gain, use_wscale=use_wscale)
     w = tf.pad(w, [[1,1], [1,1], [0,0], [0,0]], mode='CONSTANT')
     w = tf.add_n([w[1:, 1:], w[:-1, 1:], w[1:, :-1], w[:-1, :-1]]) * 0.25
     w = tf.cast(w, x.dtype)
@@ -146,7 +147,7 @@ def conv2d_downscale2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
 #----------------------------------------------------------------------------
 # downscale2d for RGB image by Gaussian smoothing + downsampling
 
-gaussian_filter_down = tf.constant(list(np.float32([1,4,6,4,1,4,16,24,16,4,6,24,36,24,6,4,16,24,16,4,1,4,6,4,1])/256.0), dtype=tf.float32, shape=[5,5,1,1], name='GaussianFilterDown', verify_shape=False)
+gaussian_filter_down = tf.constant(list(np.float32([1,4,6,4,1,4,16,24,16,4,6,24,36,24,6,4,16,24,16,4,1,4,6,4,1])/256.0), dtype=tf.float32, shape=[5,5,1,1], name='GaussianFilterDown')
 
 def downscale2d_rgb_Gaussian(x, factor=2):
     assert isinstance(factor, int) and factor >= 1

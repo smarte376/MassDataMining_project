@@ -1,7 +1,40 @@
 import torchvision
 import torch
 import numpy as np
-from advertorch.attacks import PGDAttack,CarliniWagnerL2Attack
+
+# Try to import advertorch (optional for basic functionality)
+try:
+    from advertorch.attacks import PGDAttack, CarliniWagnerL2Attack
+    from advertorch.attacks.base import Attack, LabelMixin
+    from advertorch.utils import clamp
+    from advertorch.utils import normalize_by_pnorm
+    ADVERTORCH_AVAILABLE = True
+except ImportError:
+    print("Warning: advertorch not available. PGD and CW attacks will not work.")
+    print("Install with: pip install advertorch")
+    ADVERTORCH_AVAILABLE = False
+    # Define dummy classes and functions for basic FGSM support
+    class Attack:
+        def __init__(self, predict, loss_fn=None, clip_min=0., clip_max=1.):
+            self.predict = predict
+            self.loss_fn = loss_fn
+            self.clip_min = clip_min
+            self.clip_max = clip_max
+            
+    class LabelMixin:
+        def _verify_and_process_inputs(self, x, y):
+            if y is None:
+                y = self.predict(x).argmax(dim=1)
+            return x, y
+    
+    def clamp(x, min_val, max_val):
+        return torch.clamp(x, min=min_val, max=max_val)
+    
+    def normalize_by_pnorm(x, p=2, small_constant=1e-6):
+        norms = torch.norm(x.view(x.size(0), -1), p=p, dim=1, keepdim=True)
+        norms = torch.clamp(norms, min=small_constant)
+        return x / norms.view(x.size(0), 1, 1, 1)
+
 import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -76,9 +109,13 @@ class attackMnist():
                     batch_atk = FGSM(attack_model, loss_fn=atk_loss, eps=eps,**attack_params).perturb(batch_data.to(device),
                                                                                       batch_labels.to(device))
             elif (attack_method == "PGD"):
+                if not ADVERTORCH_AVAILABLE:
+                    raise ImportError("PGD attack requires advertorch. Install with: pip install advertorch")
                 batch_atk = PGDAttack(attack_model, loss_fn=atk_loss, eps=eps,**attack_params).perturb(batch_data.to(device),
                                                                                        batch_labels.to(device))
             elif attack_method == "CW":
+                if not ADVERTORCH_AVAILABLE:
+                    raise ImportError("CW attack requires advertorch. Install with: pip install advertorch")
                 batch_atk = CarliniWagnerL2Attack(attack_model,num_classes=10,loss_fn=atk_loss, **attack_params).perturb(batch_data.to(device),batch_labels.to(device))
             elif attack_method == "iFGSM":
                 batch_atk = batch_data
@@ -274,12 +311,7 @@ class train_dataSet(torch.utils.data.Dataset):
         return data, labels, data_pn
 
 
-from advertorch.attacks.base import Attack, LabelMixin
-from advertorch.utils import clamp
-from advertorch.utils import normalize_by_pnorm
-
-
-# modify from advertorch.attacks.FGSM
+# FGSM attack implementation (modified from advertorch)
 class FGSM(Attack, LabelMixin):
 
     def __init__(self, predict, loss_fn=None, eps=0.3, clip_min=0.,

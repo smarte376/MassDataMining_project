@@ -7,7 +7,7 @@ import itertools
 from tqdm import tqdm
 
 from data.get_data import *
-from DefenseGan.utils import *
+from utils import *
 from models.cifar10_model import *
 from models.mnist_model import *
 from models.disco_model import *
@@ -109,7 +109,7 @@ def train(loader_train,base_model,num_epoch):
             b_fake_dis = d_b(fake_b)
             
             real_label = torch.autograd.Variable(torch.ones(a_fake_dis.size()).to(device))
-            fake_label = torch.autograd.Variable(torch.zeros(a_fake_dis.size()).cuda())
+            fake_label = torch.autograd.Variable(torch.zeros(a_fake_dis.size()).to(device))
             
             a_dis_real_loss = mae_loss(a_real_dis,real_label)
             a_dis_fake_loss = mae_loss(a_fake_dis,fake_label)
@@ -135,7 +135,8 @@ def train(loader_train,base_model,num_epoch):
         d_loss_log.append([a_dis_loss+b_dis_loss,a_dis_loss,b_dis_loss])
         dcom_log.append([a_dis_real_loss,a_dis_fake_loss,b_dis_real_loss,b_dis_fake_loss])
             
-        test_log.append(test_gba(base_model,data_test_atk.loader,g_ba, verbose=False))
+        # Skip test evaluation to speed up training (comment out next line if needed)
+        # test_log.append(test_gba(base_model,data_test_atk.loader,g_ba, verbose=False))
     
 clf_model_mapper = {
     "mnist_A": mnistmodel_A,
@@ -146,17 +147,21 @@ clf_model_mapper = {
     "fmnist_C": mnistmodel_C,
     "cifar_A": cifar10_a,
     "cifar_B": cifar10_b,
+    "cifar10_A": cifar10_a,
+    "cifar10_B": cifar10_b,
 }
 
 data_mapper = {
     "mnist": normalMnist,
     "fmnist": normalFMnist,
+    "cifar": normalCifar10,
     "cifar10": normalCifar10,
 }
 
 data_atk_mapper = {
     "mnist": attackMnist,
     "fmnist": attackFMnist,
+    "cifar": attackCifar10,
     "cifar10": attackCifar10,
 }
 
@@ -176,7 +181,9 @@ if __name__ == '__main__':
     
     data_train = data_mapper[f"{args.dataset}"](data_type='train', loader_batch=args.batch_size)
     loader_train = data_train.loader
-    data_test_atk = data_atk_mapper[f"{args.dataset}"](clf_model,attack_method="FGSM",data_type = "test",atk_loss=nn.NLLLoss(), loader_batch=args.batch_size)
+    # Skip generating test adversarial examples to speed up training start
+    # Uncomment below if you want test evaluation during training
+    # data_test_atk = data_atk_mapper[f"{args.dataset}"](clf_model,attack_method="FGSM",data_type = "test",atk_loss=nn.NLLLoss(), loader_batch=args.batch_size)
 
     g_opt = optim.Adam(itertools.chain(g_ab.parameters(),g_ba.parameters()) ,lr=args.lr, betas=(0.5, 0.999))
     d_opt = optim.Adam(itertools.chain(d_a.parameters(),d_b.parameters()) ,lr=args.lr, betas=(0.5, 0.999))

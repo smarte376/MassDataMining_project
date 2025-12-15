@@ -11,7 +11,7 @@ import tensorflow as tf
 from PIL import Image
 from glob import glob
 import matplotlib.pyplot as plt
-from DefenseGan.utils import misc
+# from DefenseGan.utils import misc  # Not needed for generation
 
 class Pipeline:
     def __init__(self, output_size, c_dim, batch_size, data_dir, **kwargs):

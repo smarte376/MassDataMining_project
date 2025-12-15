@@ -14,6 +14,40 @@ import numpy as np
 from collections import OrderedDict
 import tensorflow as tf
 
+# TensorFlow 2.x compatibility layer
+if not hasattr(tf, 'get_default_session'):
+    # Map TF 2.x API to TF 1.x style - comprehensive mapping
+    tf.get_default_session = tf.compat.v1.get_default_session
+    tf.variable_scope = tf.compat.v1.variable_scope
+    tf.get_variable_scope = tf.compat.v1.get_variable_scope
+    tf.get_variable = tf.compat.v1.get_variable
+    tf.placeholder = tf.compat.v1.placeholder
+    tf.AUTO_REUSE = tf.compat.v1.AUTO_REUSE
+    tf.control_dependencies = tf.compat.v1.control_dependencies
+    tf.global_variables = tf.compat.v1.global_variables
+    tf.trainable_variables = tf.compat.v1.trainable_variables
+    tf.assign = tf.compat.v1.assign
+    tf.is_variable_initialized = tf.compat.v1.is_variable_initialized
+    tf.ConfigProto = tf.compat.v1.ConfigProto
+    tf.Session = tf.compat.v1.Session
+    tf.set_random_seed = tf.compat.v1.set_random_seed
+    # Math operations
+    tf.rsqrt = tf.math.rsqrt
+    tf.sqrt = tf.math.sqrt
+    tf.square = tf.math.square
+    tf.reduce_mean = tf.math.reduce_mean
+    tf.reduce_sum = tf.math.reduce_sum
+    tf.reduce_max = tf.math.reduce_max
+    tf.reduce_min = tf.math.reduce_min
+    # Random operations
+    tf.random_uniform = tf.random.uniform
+    tf.random_normal = tf.random.normal
+    # Train API
+    if not hasattr(tf.train, 'string_input_producer'):
+        tf.train.string_input_producer = tf.compat.v1.train.string_input_producer
+        tf.train.shuffle_batch = tf.compat.v1.train.shuffle_batch
+        tf.train.Saver = tf.compat.v1.train.Saver
+
 #----------------------------------------------------------------------------
 # Convenience.
 
@@ -88,7 +122,7 @@ def init_uninited_vars(vars=None):
         for var in vars:
             assert is_tf_expression(var)
             try:
-                tf.get_default_graph().get_tensor_by_name(var.name.replace(':0', '/IsVariableInitialized:0'))
+                tf.compat.v1.get_default_graph().get_tensor_by_name(var.name.replace(':0', '/IsVariableInitialized:0'))
             except KeyError:
                 # Op does not exist => variable may be uninitialized.
                 test_vars.append(var)
@@ -108,7 +142,7 @@ def set_vars(var_to_value_dict):
     for var, value in var_to_value_dict.items():
         assert is_tf_expression(var)
         try:
-            setter = tf.get_default_graph().get_tensor_by_name(var.name.replace(':0', '/setter:0')) # look for existing op
+            setter = tf.compat.v1.get_default_graph().get_tensor_by_name(var.name.replace(':0', '/setter:0')) # look for existing op
         except KeyError:
             with absolute_name_scope(var.name.split(':')[0]):
                 with tf.control_dependencies(None): # ignore surrounding control_dependencies
@@ -259,7 +293,7 @@ class Optimizer:
         self.name               = name
         self.learning_rate      = tf.convert_to_tensor(learning_rate)
         self.id                 = self.name.replace('/', '.')
-        self.scope              = tf.get_default_graph().unique_name(self.id)
+        self.scope              = tf.compat.v1.get_default_graph().unique_name(self.id)
         self.optimizer_class    = import_obj(tf_optimizer)
         self.optimizer_kwargs   = dict(kwargs)
         self.use_loss_scaling   = use_loss_scaling
@@ -465,7 +499,11 @@ class Network:
         # Choose name and scope.
         if self.name is None:
             self.name = self._build_func_name
-        self.scope = tf.get_default_graph().unique_name(self.name.replace('/', '_'), mark_as_used=False)
+        # TF 2.x compatibility: use compat.v1.get_default_graph()
+        try:
+            self.scope = tf.compat.v1.get_default_graph().unique_name(self.name.replace('/', '_'), mark_as_used=False)
+        except AttributeError:
+            self.scope = tf.get_default_graph().unique_name(self.name.replace('/', '_'), mark_as_used=False)
         
         # Build template graph.
         with tf.variable_scope(self.scope, reuse=tf.AUTO_REUSE):
@@ -680,7 +718,7 @@ class Network:
     # individual layers of the network. Mainly intended to be used for reporting.
     def list_layers(self):
         patterns_to_ignore = ['/Setter', '/new_value', '/Shape', '/strided_slice', '/Cast', '/concat']
-        all_ops = tf.get_default_graph().get_operations()
+        all_ops = tf.compat.v1.get_default_graph().get_operations()
         all_ops = [op for op in all_ops if not any(p in op.name for p in patterns_to_ignore)]
         layers = []
 
