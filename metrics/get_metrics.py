@@ -18,6 +18,8 @@ def main():
 
     f1_score = metrics.f1_score(true_class, predicted_class, average="macro")
     print(f"f1_score: {f1_score}")
+
+    
         
 if __name__ == "__main__":
     main()
