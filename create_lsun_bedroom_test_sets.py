@@ -38,7 +38,7 @@ ATTACK_TYPES = ['noise', 'blur', 'crop', 'jpeg', 'relight', 'random_combo']
 
 # Test set configurations
 TEST_CONFIGS = {
-    'balanced_small': {
+    'knn_train': {
         'real': 500,
         'progan': 500,
         'sngan': 500,

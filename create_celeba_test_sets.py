@@ -26,8 +26,8 @@ from PIL import Image
 from adversarial_attacks import AdversarialAttackGenerator
 
 # Configuration
-REAL_IMAGE_DIR = './Datasets/celeba_align_png_cropped'  # Real CelebA images
-# REAL_IMAGE_DIR = './Datasets/Datasets/celeba_align_png_cropped'  # Real CelebA images
+#REAL_IMAGE_DIR = './Datasets/celeba_align_png_cropped'  # Real CelebA images
+REAL_IMAGE_DIR = './Datasets/Datasets/celeba_align_png_cropped'  # Real CelebA images
 GENERATED_BASE_DIR = './data/generated/celeba'
 OUTPUT_BASE_DIR = './data/test_sets/celeba'
 
@@ -40,7 +40,7 @@ ATTACK_TYPES = [] # for generating eigenface data
 
 # Test set configurations
 TEST_CONFIGS = { # for generating eigenface
-    'eigenface_train': {
+    'knn_train': {
         'real': 500,
         'progan': 500,
         'sngan': 500,
