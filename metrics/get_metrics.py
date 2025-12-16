@@ -18,7 +18,7 @@ def output_f1_score():
     predicted_class = df.iloc[:, 2]
 
     f1_score = metrics.f1_score(true_class, predicted_class, average="macro")
-    print(f"f1_score: {f1_score}")
+    print(f"f1_score: {f1_score:.4f}")
 
 def output_auc_roc_score():
     results_root = Path(RESULTS_DIR)
@@ -74,9 +74,22 @@ def output_auc_roc_score():
         if found_probabilities:
             break
 
+def output_accuracy_score():
+    results_root = Path(RESULTS_DIR)
+    results_csv_path = next(results_root.rglob("results.csv"), None)
+
+    df = pd.read_csv(results_csv_path, header=None)
+
+    true_class = df.iloc[:, 1]
+    predicted_class = df.iloc[:, 2]
+
+    accuracy_score = metrics.accuracy_score(true_class, predicted_class)
+    print(f"Accuracy: {accuracy_score:.4f}")
+
 def main():
     output_f1_score()
-    output_auc_roc_score()    
+    output_auc_roc_score()
+    output_accuracy_score()   
         
 if __name__ == "__main__":
     main()
