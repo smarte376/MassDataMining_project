@@ -44,7 +44,7 @@ def main():
     print("n_features: %d" % n_features)
     print("n_classes: %d" % n_classes)
 
-    n_components = 150
+    n_components = 1000
 
     print(
         "Extracting the top %d eigenfaces from %d faces" % (n_components, X_train.shape[0])

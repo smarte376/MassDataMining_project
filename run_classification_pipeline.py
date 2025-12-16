@@ -346,7 +346,7 @@ Examples:
     parser.add_argument(
         '--defense_gan_model_dir',
         type=str,
-        default='DefenseGan/saved_model/collaborative_gan_mnist_B',
+        default='DefenseGan/saved_model/collaborative_gan_cifar10_A',
         help='Path to DefenseGAN model directory (contains g_ba.pth). Note: MNIST model is grayscale only, need RGB model for CelebA/LSUN'
     )
     
