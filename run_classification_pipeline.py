@@ -18,6 +18,8 @@ from defense_gan_wrapper import DefenseGANReconstructor
 
 from eigenface.eigenface import run_model
 
+from knn.knn import run_model as run_knn_model
+
 
 def run_classification_pipeline(
     test_set_dir,
@@ -28,7 +30,9 @@ def run_classification_pipeline(
     defense_dataset_type='cifar10',
     output_base_dir='results',
     use_eigenface=False,
-    eigenface_model_dir=None
+    eigenface_model_dir=None,
+    use_knn=False,
+    knn_model_dir=None
 ):
     """
     Args:
@@ -254,6 +258,21 @@ def run_classification_pipeline(
         print("Skipping Eigenface Classifier (use_eigenface=False)")
         print("=" * 80)
 
+    if use_knn:
+        if not knn_model_dir:
+            raise ValueError("knn_model_dir must be provided when use_knn=True")
+
+        print()
+        print("=" * 80)
+        print("kNN Classifier")
+        print("=" * 80)
+        run_knn_model(test_set_dir, knn_model_dir, str(results_dir), dataset=dataset)
+        print()
+    else:
+        print()
+        print("=" * 80)
+        print("Skipping kNN Classifier (use_knn=False)")
+        print("=" * 80)
     
     print()
     print("=" * 80)
@@ -358,6 +377,19 @@ Examples:
         default='eigenface/models',
         help='Path to Eigenface classifier directory; only works on CelebA'
     )
+
+    parser.add_argument(
+        '--use_knn',
+        action='store_true',
+        help='Use kNN classifier along with our native classifier'
+    )
+
+    parser.add_argument(
+        '--knn_model_dir',
+        type=str,
+        default='knn/models',
+        help='Path to kNN classifier directory'
+    )
     
     args = parser.parse_args()
     
@@ -373,6 +405,10 @@ Examples:
     if args.use_eigenface and not os.path.isdir(args.eigenface_model_dir):
         print(f"ERROR: Eigenface model directory not found: {args.eigenface_model_dir}")
         sys.exit(1)
+
+    if args.use_knn and not os.path.isdir(args.knn_model_dir):
+        print(f"ERROR: kNN model directory not found: {args.knn_model_dir}")
+        sys.exit(1)
     
     # Run pipeline
     run_classification_pipeline(
@@ -384,7 +420,9 @@ Examples:
         defense_dataset_type=args.defense_dataset_type,
         output_base_dir=args.output_base_dir,
         use_eigenface=args.use_eigenface,
-        eigenface_model_dir=args.eigenface_model_dir
+        eigenface_model_dir=args.eigenface_model_dir,
+        use_knn=args.use_knn,
+        knn_model_dir=args.knn_model_dir
     )
 
 
