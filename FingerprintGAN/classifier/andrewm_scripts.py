@@ -57,6 +57,15 @@ def classify(model_path, testing_data_path):
             im = np.transpose(misc.adjust_dynamic_range(im, [0,1], [-1,1]), axes=[2,0,1])
             im = np.reshape(im, [1]+list(im.shape))
             logits = C_im.run(im, minibatch_size=1, num_gpus=1, out_dtype=np.float32)
+            idx = np.argmax(np.squeeze(logits))
+            if logits.shape[1] == len(labels_1):
+                labels = list(labels_1)
+            if count_dict is None:
+                count_dict = {}
+                for label in labels:
+                    count_dict[label] = 0
+            count_dict[labels[idx]] += 1
+            print('Classifying %d/%d images: %s: predicted as being sampled from %s' % (count0, length, name, labels[idx]))
 
             # Andrew Michael code
             torch_logits = torch.from_numpy(logits)

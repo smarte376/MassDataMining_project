@@ -29,52 +29,48 @@ def output_auc_roc_score():
     results_root = Path(RESULTS_DIR)
     marker = "<" * 50 + "PROBABILITIES" + ">" * 50
 
-    found_probabilities = False
-    for result_txt in results_root.rglob("classification_results/*.txt"):
+    # found_probabilities = False
+    for result_txt in results_root.rglob("classification_results/probabilities.txt"):
         with open(result_txt, "r") as file:
+            true_classes = []
+            probabilities = []
+            label_line = next(file).split()[1]
+            label_line_split = label_line.split(",")
+            labels = [
+                label_line_split[0].split("_")[1].lower(),
+                label_line_split[1][:label_line_split[1].index("_")].lower(),
+                label_line_split[2][:label_line_split[2].index("_")].lower(),
+                label_line_split[3][:label_line_split[3].index("_")].lower(),
+                label_line_split[4][:label_line_split[4].index("_")].lower()
+            ]
             for line in file:
-                if marker in line:
-                    found_probabilities = True
-                    break
-            if found_probabilities:
-                true_classes = []
-                probabilities = []
-                label_line = next(file).split()[1]
-                label_line_split = label_line.split(",")
-                labels = [
-                    label_line_split[0].split("_")[1].lower(),
-                    label_line_split[1][:label_line_split[1].index("_")].lower(),
-                    label_line_split[2][:label_line_split[2].index("_")].lower(),
-                    label_line_split[3][:label_line_split[3].index("_")].lower(),
-                    label_line_split[4][:label_line_split[4].index("_")].lower()
-                ]
-                for line in file:
-                    data_line = line.split("|")
-                    image_file = data_line[0].split()[1]
-                    real_class = image_file[:image_file.index("_")]
-                    true_classes.append(real_class)
-                    probabilities.append(list(map(float, data_line[1].split()[1].split(","))))
-                df = pd.DataFrame(data=probabilities, columns=labels)
-                df.insert(0, "True Class", true_classes)
+                data_line = line.split("|")
+                image_file = data_line[0].split()[1]
+                real_class = image_file[:image_file.index("_")]
+                true_classes.append(real_class)
+                probabilities.append(list(map(float, data_line[1].split()[1].split(","))))
+            df = pd.DataFrame(data=probabilities, columns=labels)
+            df.insert(0, "True Class", true_classes)
 
-                plt.figure()
-                roc_auc_scores = []
-                for class_ in df["True Class"].unique():
-                    binary_class = df["True Class"] == class_
-                    scores = df[class_]
-                    roc_auc_score = metrics.roc_auc_score(
-                        y_true = binary_class, 
-                        y_score = scores,
-                    )
-                    roc_auc_scores.append((class_, roc_auc_score))
-                    fpr, tpr, _ = metrics.roc_curve(binary_class, scores)
-                    plt.plot(fpr, tpr, label=f"{class_} ROC (AUC={roc_auc_score:.4f})")
-                plt.plot([0, 1], [0, 1], 'k--', label='Random Guessing')
-                plt.legend()
-                plt.xlabel("False Positive Rate")
-                plt.ylabel("True Positive Rate")
-                plt.title("ROC Curve for All Classes")
-                plt.savefig("roc_curve.png", format="png", bbox_inches="tight")
+            plt.figure()
+            roc_auc_scores = []
+            for class_ in df["True Class"].unique():
+                binary_class = df["True Class"] == class_
+                scores = df[class_]
+                roc_auc_score = metrics.roc_auc_score(
+                    y_true = binary_class, 
+                    y_score = scores,
+                )
+                roc_auc_scores.append((class_, roc_auc_score))
+                fpr, tpr, _ = metrics.roc_curve(binary_class, scores)
+                plt.plot(fpr, tpr, label=f"{class_} ROC (AUC={roc_auc_score:.4f})")
+            plt.plot([0, 1], [0, 1], 'k--', label='Random Guessing')
+            plt.legend()
+            plt.xlabel("False Positive Rate")
+            plt.ylabel("True Positive Rate")
+            plt.title("ROC Curve for All Classes")
+            plt.savefig("roc_curve.png", format="png", bbox_inches="tight")
+            found_probabilities = True
 
         if found_probabilities:
             break
