@@ -27,6 +27,7 @@ data/
 Datasets/
 knn/models/*
 eigenface/models/*
+eigenface/img
 *.pyc
 results/
 data_prior/
