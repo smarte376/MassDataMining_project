@@ -17,8 +17,13 @@ def output_f1_score():
     true_class = df.iloc[:, 1]
     predicted_class = df.iloc[:, 2]
 
-    f1_score = metrics.f1_score(true_class, predicted_class, average="macro")
-    print(f"f1_score: {f1_score:.4f}")
+    macro_f1_score = metrics.f1_score(true_class, predicted_class, labels=true_class.unique(), average="macro")
+    print(f"Macro f1_score: {macro_f1_score:.4f}")
+
+    classes = true_class.unique()
+    f1_scores = metrics.f1_score(true_class, predicted_class, labels=classes, average=None)
+    for class_, f1_score in zip(classes, f1_scores):
+        print(f"{class_} f1 score: {f1_score:.4f}")
 
 def output_auc_roc_score():
     results_root = Path(RESULTS_DIR)
@@ -83,8 +88,13 @@ def output_accuracy_score():
     true_class = df.iloc[:, 1]
     predicted_class = df.iloc[:, 2]
 
-    accuracy_score = metrics.accuracy_score(true_class, predicted_class)
-    print(f"Accuracy: {accuracy_score:.4f}")
+    overall_accuracy_score = metrics.accuracy_score(true_class, predicted_class)
+    print(f"Overall Accuracy: {overall_accuracy_score:.4f}")
+
+    for class_ in true_class.unique():
+        index_values = true_class[true_class == class_].index
+        class_accuracy_score = metrics.accuracy_score(true_class[index_values], predicted_class[index_values])
+        print(f"{class_} Accuracy: {class_accuracy_score:.4f}")
 
 def main():
     output_f1_score()
