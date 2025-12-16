@@ -1,1 +1,0 @@
-python andrewm_run_classification_pipeline.py --test_set_dir data/test_sets/celeba/balanced_small/noise --dataset celeba --use_defense_gan --defense_gan_model_dir DefenseGan/saved_model/collaborative_gan_cifar10_A
