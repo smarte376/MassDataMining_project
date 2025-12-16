@@ -25,6 +25,8 @@ FingerprintGAN/classifier/models/LSUN_bedroom_200k_ProGAN_SNGAN_CramerGAN_MMDGAN
 FingerprintGAN/ProGAN/models/*
 data/
 Datasets/
+knn/models/*
+eigenface/models/*
 *.pyc
 results/
 data_prior/
