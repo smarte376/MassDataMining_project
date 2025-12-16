@@ -334,7 +334,7 @@ def _mmd2_and_variance(K_XX, K_XY, K_YY, unit_diagonal=False,
     return mmd2, var_est
 
 
-def main():
+def main_compute_scores():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('samples')
@@ -509,4 +509,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main_compute_scores()

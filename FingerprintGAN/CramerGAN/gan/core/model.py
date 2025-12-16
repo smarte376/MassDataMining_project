@@ -4,7 +4,13 @@ from . import  mmd
 from .ops import safer_norm, tf
 from .architecture import get_networks
 from .pipeline import get_pipeline
-from DefenseGan.utils import timer, scorer, misc 
+# from DefenseGan.utils import timer, scorer, misc  # Not needed for generation
+
+# Simple timer stub for generation
+class TimerStub:
+    def __init__(self): pass
+    def __call__(self, *args, **kwargs): return 0.0
+timer = type('obj', (object,), {'Timer': TimerStub})() 
 
 class MMD_GAN(object):
     def __init__(self, sess, config, 
@@ -332,6 +338,13 @@ class MMD_GAN(object):
             
             
     def set_pipeline(self):
+        # For generation only, use a placeholder instead of loading data
+        if not self.config.is_train:
+            self.images = tf.placeholder(tf.float32, 
+                [self.real_batch_size, self.output_size, self.output_size, self.c_dim],
+                name='images_placeholder')
+            return
+        
         Pipeline = get_pipeline(self.dataset, self.config.suffix)
         pipe = Pipeline(self.output_size, self.c_dim, self.real_batch_size, 
                         self.data_dir, 
@@ -405,7 +418,8 @@ class MMD_GAN(object):
         
     def imageRearrange(self, image, block=4):
         image = tf.slice(image, [0, 0, 0, 0], [block * block, -1, -1, -1])
-        x1 = tf.batch_to_space(image, [[0, 0], [0, 0]], block)
+        # TF 2.x: use compat.v1.batch_to_space_nd
+        x1 = tf.compat.v1.batch_to_space_nd(image, [block, block], [[0, 0], [0, 0]])
         image_r = tf.reshape(tf.transpose(tf.reshape(x1,
             [self.output_size, block, self.output_size, block, self.c_dim])
             , [1, 0, 3, 2, 4]),

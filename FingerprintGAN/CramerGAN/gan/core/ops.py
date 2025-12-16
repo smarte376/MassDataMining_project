@@ -1,6 +1,48 @@
+import tensorflow as tf
+
+# TensorFlow 2.x compatibility layer - must be first!
+if not hasattr(tf, 'get_default_session'):
+    tf.get_default_session = tf.compat.v1.get_default_session
+    tf.variable_scope = tf.compat.v1.variable_scope
+    tf.get_variable_scope = tf.compat.v1.get_variable_scope
+    tf.get_variable = tf.compat.v1.get_variable
+    tf.placeholder = tf.compat.v1.placeholder
+    tf.AUTO_REUSE = tf.compat.v1.AUTO_REUSE
+    tf.control_dependencies = tf.compat.v1.control_dependencies
+    tf.global_variables = tf.compat.v1.global_variables
+    tf.trainable_variables = tf.compat.v1.trainable_variables
+    tf.local_variables = tf.compat.v1.local_variables
+    tf.assign = tf.compat.v1.assign
+    tf.is_variable_initialized = tf.compat.v1.is_variable_initialized
+    tf.ConfigProto = tf.compat.v1.ConfigProto
+    tf.Session = tf.compat.v1.Session
+    tf.set_random_seed = tf.compat.v1.set_random_seed
+    tf.rsqrt = tf.math.rsqrt
+    tf.sqrt = tf.math.sqrt
+    tf.square = tf.math.square
+    tf.reduce_mean = tf.math.reduce_mean
+    tf.reduce_sum = tf.math.reduce_sum
+    tf.reduce_max = tf.math.reduce_max
+    tf.reduce_min = tf.math.reduce_min
+    tf.random_uniform = tf.random.uniform
+    tf.random_normal = tf.random.normal
+    tf.truncated_normal_initializer = tf.compat.v1.truncated_normal_initializer
+    tf.random_normal_initializer = tf.compat.v1.random_normal_initializer
+    tf.get_collection = tf.compat.v1.get_collection
+    tf.GraphKeys = tf.compat.v1.GraphKeys
+    tf.depth_to_space = tf.nn.depth_to_space
+    tf.space_to_depth = tf.nn.space_to_depth
+    # Add nn operations
+    if not hasattr(tf.nn, 'fused_batch_norm'):
+        tf.nn.fused_batch_norm = tf.compat.v1.nn.fused_batch_norm
+    if not hasattr(tf.train, 'string_input_producer'):
+        tf.train.string_input_producer = tf.compat.v1.train.string_input_producer
+        tf.train.shuffle_batch = tf.compat.v1.train.shuffle_batch
+        tf.train.Saver = tf.compat.v1.train.Saver
+
 from tensorflow.python.framework import ops
 from utils.misc import variable_summaries
-from .mmd import _eps, tf
+from .mmd import _eps
 
 
 class batch_norm(object):
@@ -86,7 +128,7 @@ def deconv2d(input_, output_shape,
                                 strides=[1, d_h, d_w, 1])
 
         biases = tf.get_variable('biases', [output_shape[-1]], initializer=tf.constant_initializer(0.0))
-        deconv = tf.reshape(tf.nn.bias_add(deconv, biases), deconv.get_shape())
+        deconv = tf.nn.bias_add(deconv, biases)
         
         if not has_summary:
             variable_summaries({'W': w, 'b': biases})
@@ -160,7 +202,7 @@ class linear_n:
 
 def safer_norm(tensor, axis=None, keep_dims=False, epsilon=_eps):
     sq = tf.square(tensor)
-    squares = tf.reduce_sum(sq, axis=axis, keep_dims=keep_dims)
+    squares = tf.reduce_sum(sq, axis=axis, keepdims=keep_dims)  # TF 2.x: keepdims not keep_dims
     return tf.sqrt(squares + epsilon)
 
 

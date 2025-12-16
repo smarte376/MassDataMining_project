@@ -17,17 +17,17 @@ matplotlib
 torch==1.11.0
 torchvision==0.12.0
 tqdm
---ignore--
-// had to use tensorflow 1.15 since 1.12 would not install using cuda 10.0 (vsc ai said it was because version 1.12 was looking for cuda 9.0, not sure if this is a pip issue)
-// had to use torch = 1.10.2 (again pip had issues installing 1.11.0)
-// when installing torch = 1.10.2, torchvision = 0.11.3 was installed 
+# --ignore--
+# // had to use tensorflow 1.15 since 1.12 would not install using cuda 10.0 (vsc ai said it was because version 1.12 was looking for cuda 9.0, not sure if this is a pip issue)
+# // had to use torch = 1.10.2 (again pip had issues installing 1.11.0)
+# // when installing torch = 1.10.2, torchvision = 0.11.3 was installed 
 
-// Copy the following files to your CUDA installation:
-// Copy cuda/bin/cudnn64_7.dll to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin
-// Copy cuda/include/cudnn.h to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\include
-// Copy cuda/lib/x64/cudnn.lib to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\lib\x64
-// Add these paths to your system's PATH environment variable:
+# // Copy the following files to your CUDA installation:
+# // Copy cuda/bin/cudnn64_7.dll to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin
+# // Copy cuda/include/cudnn.h to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\include
+# // Copy cuda/lib/x64/cudnn.lib to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\lib\x64
+# // Add these paths to your system's PATH environment variable:
 
-// C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin
-// C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\libnvvp
-// C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64
+# // C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin
+# // C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\libnvvp
+# // C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64
