@@ -153,10 +153,10 @@ def run_classification_pipeline(
         sys.path.insert(0, classifier_dir_str)
         
         print(f"Current working directory: {os.getcwd()}")
-        print(f"util_scripts.py exists: {os.path.exists('util_scripts.py')}")
+        print(f"andrewm_scripts.py exists: {os.path.exists('andrewm_scripts.py')}")
         
         # Import classifier modules after changing directory
-        import util_scripts
+        import andrewm_scripts
         import tfutil
         
         # Initialize TensorFlow session
@@ -203,7 +203,7 @@ def run_classification_pipeline(
         sys.stdout = tee
         
         try:
-            util_scripts.classify(
+            andrewm_scripts.classify(
                 model_path=str(model_path),
                 testing_data_path=classification_input_dir
             )
