@@ -2,11 +2,12 @@ from pathlib import Path
 import pandas as pd
 from sklearn import metrics
 from matplotlib import pyplot as plt
+import argparse
 
-RESULTS_DIR = "../results/"
+# RESULTS_DIR = "../results/"
 
 def output_f1_score():
-    results_root = Path(RESULTS_DIR)
+    results_root = Path(results_dir)
     results_csv_path = next(results_root.rglob("results.csv"), None)
 
     if results_csv_path is None:
@@ -26,7 +27,7 @@ def output_f1_score():
         print(f"{class_} f1 score: {f1_score:.4f}")
 
 def output_auc_roc_score():
-    results_root = Path(RESULTS_DIR)
+    results_root = Path(results_dir)
     marker = "<" * 50 + "PROBABILITIES" + ">" * 50
 
     # found_probabilities = False
@@ -76,7 +77,7 @@ def output_auc_roc_score():
             break
 
 def output_accuracy_score():
-    results_root = Path(RESULTS_DIR)
+    results_root = Path(results_dir)
     results_csv_path = next(results_root.rglob("results.csv"), None)
 
     df = pd.read_csv(results_csv_path, header=None)
@@ -98,4 +99,20 @@ def main():
     output_accuracy_score()   
         
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Run FingerprintGAN classification with optional DefenseGAN reconstruction',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument(
+        '--results_dir',
+        type=str,
+        required=True,
+        help='Directory containing test images to classify'
+    )
+    
+    args = parser.parse_args()
+
+    results_dir = args.results_dir
+    
     main()
