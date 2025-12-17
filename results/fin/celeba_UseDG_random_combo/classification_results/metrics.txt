@@ -1,0 +1,12 @@
+Macro f1_score: 0.1807
+cramergan f1 score: 0.1360
+mmdgan f1 score: 0.2747
+progan f1 score: 0.0403
+real f1 score: 0.4121
+sngan f1 score: 0.0404
+Overall Accuracy: 0.2528
+cramergan Accuracy: 0.1100
+mmdgan Accuracy: 0.3360
+progan Accuracy: 0.0220
+real Accuracy: 0.7740
+sngan Accuracy: 0.0220

@@ -1,0 +1,17 @@
+================================================================================
+Classification Pipeline Summary
+================================================================================
+
+Timestamp: 20251216_210650
+Dataset: lsun_bedroom
+Model: FingerprintGAN_lsun_bedroom
+Original Test Set: data/test_sets/lsun_bedroom/balanced_small/noise
+DefenseGAN Applied: True
+DefenseGAN Model: DefenseGan/saved_model/collaborative_gan_cifar10_A
+DefenseGAN Type: cifar10
+Reconstructed Images: results/lsun_bedroom_20251216_210650/reconstructed_test_set
+Classification Input: /common/home/jmp747/projects/cs550/MassDataMining_project/results/lsun_bedroom_20251216_210650/reconstructed_test_set
+Results Directory: results/lsun_bedroom_20251216_210650/classification_results
+Predictions File: /common/home/jmp747/projects/cs550/MassDataMining_project/results/lsun_bedroom_20251216_210650/classification_results/with_defensegan_noise_results.txt
+
+================================================================================

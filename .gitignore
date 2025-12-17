@@ -29,6 +29,6 @@ knn/models/*
 eigenface/models/*
 eigenface/img
 *.pyc
-results/
+results/fin/*/reconstructed_test_set
 data_prior/
 zip/

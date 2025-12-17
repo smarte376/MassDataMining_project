@@ -1,0 +1,14 @@
+================================================================================
+Classification Pipeline Summary
+================================================================================
+
+Timestamp: 20251216_210943
+Dataset: lsun_bedroom
+Model: FingerprintGAN_lsun_bedroom
+Original Test Set: data/test_sets/lsun_bedroom/balanced_small/jpeg
+DefenseGAN Applied: False
+Classification Input: /common/home/jmp747/projects/cs550/MassDataMining_project/data/test_sets/lsun_bedroom/balanced_small/jpeg
+Results Directory: results/lsun_bedroom_20251216_210943/classification_results
+Predictions File: /common/home/jmp747/projects/cs550/MassDataMining_project/results/lsun_bedroom_20251216_210943/classification_results/no_defense_jpeg_results.txt
+
+================================================================================

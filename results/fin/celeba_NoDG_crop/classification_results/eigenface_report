@@ -1,0 +1,11 @@
+              precision    recall  f1-score   support
+
+      celeba       0.21      0.01      0.02       500
+      progan       0.19      0.17      0.18       500
+       sngan       0.25      0.09      0.13       500
+   cramergan       0.21      0.65      0.32       500
+      mmdgan       0.19      0.12      0.15       500
+
+    accuracy                           0.21      2500
+   macro avg       0.21      0.21      0.16      2500
+weighted avg       0.21      0.21      0.16      2500
