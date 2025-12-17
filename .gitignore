@@ -22,9 +22,13 @@ FingerprintGAN/classifier/models/CelebA_ProGAN_seed_x10_128.pkl
 FingerprintGAN/classifier/models/CelebA_ProGAN_SNGAN_CramerGAN_MMDGAN_128.pkl
 FingerprintGAN/classifier/models/LSUN_bedroom_200k_ProGAN_seed_x10_128.pkl
 FingerprintGAN/classifier/models/LSUN_bedroom_200k_ProGAN_SNGAN_CramerGAN_MMDGAN_128.pkl
+FingerprintGAN/ProGAN/models/*
 data/
 Datasets/
+knn/models/*
+eigenface/models/*
+eigenface/img
 *.pyc
-results/
+results/fin/*/reconstructed_test_set
 data_prior/
 zip/

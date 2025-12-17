@@ -1,0 +1,11 @@
+              precision    recall  f1-score   support
+
+        real       0.83      0.86      0.84       500
+      progan       0.81      0.82      0.82       500
+       sngan       0.77      0.83      0.80       500
+   cramergan       0.80      0.79      0.79       500
+      mmdgan       0.87      0.78      0.82       500
+
+    accuracy                           0.81      2500
+   macro avg       0.82      0.81      0.81      2500
+weighted avg       0.82      0.81      0.81      2500

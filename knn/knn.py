@@ -64,7 +64,8 @@ def main(dataset='celeba'):
         KNeighborsClassifier(), 
         param_grid, 
         cv=5, 
-        n_jobs=1, #ran into an error using -1 with python 3.7, temp fix was to set it to 1, slow but works
+        n_jobs=-1, #ran into an error using -1 with python 3.7, temp fix was to set it to 1, slow but works
+        # n_jobs=1, #ran into an error using -1 with python 3.7, temp fix was to set it to 1, slow but works
         verbose=1
     )
     clf = clf.fit(X_train, y_train)

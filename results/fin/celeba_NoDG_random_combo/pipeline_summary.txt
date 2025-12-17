@@ -1,0 +1,14 @@
+================================================================================
+Classification Pipeline Summary
+================================================================================
+
+Timestamp: 20251216_205447
+Dataset: celeba
+Model: FingerprintGAN_celeba
+Original Test Set: data/test_sets/celeba/balanced_small/random_combo
+DefenseGAN Applied: False
+Classification Input: /common/home/jmp747/projects/cs550/MassDataMining_project/data/test_sets/celeba/balanced_small/random_combo
+Results Directory: results/celeba_20251216_205447/classification_results
+Predictions File: /common/home/jmp747/projects/cs550/MassDataMining_project/results/celeba_20251216_205447/classification_results/no_defense_random_combo_results.txt
+
+================================================================================
